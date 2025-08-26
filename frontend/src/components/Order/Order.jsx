@@ -9,15 +9,20 @@ const Order = ({ setShowLogin }) => {
 	const [category, setCategory] = useState("Coffee Selection");
 	const [menuItems, setMenuItems] = useState([]);
 	const { user } = useContext(UserContext);
-	const [loading, setLoading] = useState(true); // Add loading state
+	const [loading, setLoading] = useState(true);
 	const navigate = useNavigate();
 
-	// Update URL with the category query parameter
+	useEffect(() => {
+		if (loading) return;
+		if (!user && !localStorage.getItem("token")) {
+			setShowLogin(true);
+		}
+	}, [user, navigate, loading]);
+
 	useEffect(() => {
 		navigate(`?category=${category}`);
 	}, [category, navigate]);
 
-	// Function to Fetch menu items based on category
 	const fetchMenuItems = async (category) => {
 		try {
 			const response = await axiosInstance.get(
@@ -31,31 +36,37 @@ const Order = ({ setShowLogin }) => {
 		}
 	};
 
-	// Re-render (fetch items) when category changes & Set loading state to false when the component is ready
 	useEffect(() => {
-		const loadMenu = async () => {
-			await fetchMenuItems(category); // Wait for data
-			setLoading(false); // Only stop loading after data is ready
-		};
-
-		loadMenu();
+		setLoading(true);
+		fetchMenuItems(category).finally(() => setLoading(false));
 	}, [category]);
+
+	if (loading) {
+		return (
+			<div className="w-full text-center py-20 text-secondary font-Source text-lg">
+				Loading menu...
+			</div>
+		);
+	}
+
+	if (!user && !localStorage.getItem("token")) {
+		return null;
+	}
 
 	return (
 		<>
 			{/* Order Navbar */}
-			<div className="bg-secondary p-1">
-				<ul className="flex list-none items-center justify-between my-1 mx-[150px]">
+			<div className="bg-secondary w-full overflow-x-auto scrollbar-hide">
+				<ul className="flex list-none items-center gap-6 py-3 px-5 lg:px-36 md:gap-36 min-w-max ">
 					{menu_list.map((item) => (
 						<li
 							key={item.menu_name}
 							onClick={() => setCategory(item.menu_name)}
-							className={`${
+							className={`cursor-pointer font-Source transition-colors duration-300 md:text-lg sm:text-sm ${
 								category === item.menu_name
-									? "text-primary"
+									? "text-primary font-semibold border-b-2 border-primary"
 									: "text-slate-100"
-							}
-                font-Source cursor-pointer text-lg hover:text-primary`}
+							} hover:text-primary`}
 						>
 							{item.menu_name}
 						</li>
@@ -63,29 +74,24 @@ const Order = ({ setShowLogin }) => {
 				</ul>
 			</div>
 
-			{/* Order Card */}
-			{loading ? (
-				<div className="col-span-3 flex justify-center items-center min-h-[400px]">
-					<div className="spinner"></div>
-				</div>
-			) : menuItems.length > 0 ? (
-				<div className="grid grid-cols-3 m-10 mx-20 ">
-				{menuItems.map((item, index) => (
-					<MenuCard
-						key={index}
-						imgSrc={item.image}
-						title={item.name}
-						description={item.description}
-						price={item.price}
-						setShowLogin={setShowLogin}
-					/>
-				))}
-				</div>
-			) : (
-				<div className="col-span-3 text-center text-gray-500 text-lg self-center">
-					No items found for this category.
-				</div>
-			)}
+			{/* Order Cards Grid */}
+			<div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 px-4 md:px-10 lg:px-20 py-10">
+				{menuItems.length > 0 ? (
+					menuItems.map((item, index) => (
+						<MenuCard
+							key={index}
+							imgSrc={item.image}
+							title={item.name}
+							description={item.description}
+							price={item.price}
+						/>
+					))
+				) : (
+					<div className="col-span-full text-center text-secondary font-Source text-lg">
+						No items available in this category.
+					</div>
+				)}
+			</div>
 		</>
 	);
 };

@@ -1,9 +1,9 @@
 import React, { useState, useEffect, useContext } from "react";
-import axiosInstance from "../utils/axiosInstance";
 import MenuCard from "../components/Order/MenuCard";
 import toast from "react-hot-toast";
 import { useNavigate } from "react-router-dom";
 import { UserContext } from "../../context/UserContext";
+import axiosInstance from "../utils/axiosInstance";
 
 const ManageFoodAdmin = ({ setShowLogin }) => {
 	const [menuItems, setMenuItems] = useState([]);
@@ -52,7 +52,7 @@ const ManageFoodAdmin = ({ setShowLogin }) => {
 	}, []);
 
 	return (
-		<div className="grid grid-cols-2 m-10 mx-20">
+		<div className="grid grid-cols-1 md:grid-cols-2 gap-5 lg:m-10 lg:mx-20">
 			{menuItems.map((item, index) => (
 				<MenuCard
 					key={index}

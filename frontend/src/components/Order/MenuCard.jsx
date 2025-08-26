@@ -2,75 +2,65 @@ import React, { useContext, useState } from "react";
 import { MdDeleteForever } from "react-icons/md";
 import { UserContext } from "../../../context/UserContext";
 import { useCart } from "../../../context/CartContext";
-import toast from "react-hot-toast";
 
-
-const MenuCard = ({ imgSrc, title, description, price, handleDelete,setShowLogin }) => {
+const MenuCard = ({ imgSrc, title, description, price, handleDelete }) => {
 	const [quantity, setQuantity] = useState(1);
 	const { user } = useContext(UserContext);
-	const {addToCart} = useCart()
+	const { addToCart } = useCart();
 
 	const isAdmin = user?.role === "admin";
 
 	const handleQuantityChange = (event) => {
-		setQuantity(Number(event.target.value)); // Convert to number
+		const value = Number(event.target.value);
+		if (value >= 1) {
+			setQuantity(value);
+		}
 	};
 
 	const handleAddToCart = () => {
-
-		if (!user && !localStorage.getItem("token")) {
-				setShowLogin?.(true); // Optional chaining in case not passed
-				toast.error("Please login to add items to cart");
-				return;
-			}
-
 		const item = { title, description, imgSrc, price, quantity };
 		addToCart(item);
-		setQuantity(1)
+		setQuantity(1);
 	};
 
 	return (
-		<div className="w-[420px] font-Source bg-white rounded-md shadow-md overflow-hidden mx-2 my-2 relative">
-			<div className="md:flex">
-				<div className="md:flex-shrink-0">
-					<img
-						className="h-[100px] w-[100px] m-4 rounded-full"
-						src={imgSrc}
-						alt={title}
-					/>
-				</div>
-				<div className="p-4">
-					<div className="block mt-1 text-base leading-tight font-medium text-text">
-						{title}
-					</div>
-					<p className="mt-2 text-sm text-gray-500">{description}</p>
-					<div className="mt-4 flex items-center justify-between">
-						<span className="text-sm font-semibold text-gray-900">
-							₹ {price}
-						</span>
-						<div className="flex items-center">
+		<div className="w-full max-w-sm bg-white font-Source rounded-xl shadow-md overflow-hidden relative hover:shadow-lg transition-shadow mx-auto">
+			<div className="flex items-center p-4">
+				<img
+					src={imgSrc}
+					alt={title}
+					className="h-20 w-20 object-cover rounded-full mr-4"
+				/>
+				<div className="flex-1">
+					<h3 className="text-lg font-semibold text-text">{title}</h3>
+					<p className="text-sm text-gray-500 line-clamp-2">{description}</p>
+					<div className=" sm:flex items-center justify-between ">
+						<span className=" text-base font-bold text-gray-800 ">₹ {price}</span>
+						{isAdmin? null : (<div className="flex gap-4 sm:flex-row sm:items-center sm:space-x-2 space-y-2 items-center">
 							<input
 								type="number"
 								min="1"
 								value={quantity}
 								onChange={handleQuantityChange}
-								className="w-10 h-8 p-1 text-center border rounded mx-4"
+								className="w-12 h-8 text-center border border-border rounded-md text-sm "
 							/>
 							<button
-								className="outline-none h-[30px] w-[100px] bg-primary rounded-[100px] font-Source text-white text-sm uppercase px-2"
 								onClick={handleAddToCart}
+								className="bg-primary text-white rounded-full px-4 py-1 text-sm uppercase tracking-wide hover:bg-opacity-90 transition-colors"
 							>
 								Add Item
 							</button>
-						</div>
+						</div>)}
 					</div>
 				</div>
 			</div>
-			{/* Delete Icon */}
+
+			{/* Delete Icon for Admin */}
 			{isAdmin && handleDelete && (
 				<div
 					onClick={handleDelete}
-					className="absolute top-4 right-4 text-red-500 text-xl cursor-pointer"
+					className="absolute top-3 right-3 text-red-500 text-xl cursor-pointer hover:text-red-600"
+					title="Delete Item"
 				>
 					<MdDeleteForever />
 				</div>

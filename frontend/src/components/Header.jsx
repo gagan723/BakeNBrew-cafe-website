@@ -24,9 +24,9 @@ const Header = () => {
 					</p>
 					<Button
 						onClick={() => navigate("/reservation")}
-						className="mt-3 text-sm py-1.5 px-4"
+						className="mt-3 py-1.5 px-4"
 					>
-						book a table
+						Book a Table
 					</Button>
 				</div>
 				<div className="flex flex-col gap-1.5 lg:border-l border-border lg:pl-8 animate-fadeIn">
