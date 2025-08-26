@@ -1,78 +1,116 @@
-import React, { useState, useEffect } from "react";
-import comma from "../assets/comma.svg";
+import React, { useState, useContext, useEffect } from "react";
+import reservation from "../assets/reservation.png";
+import Button from "./Button";
+import toast from "react-hot-toast";
+import { UserContext } from "../../context/UserContext";
+import { useNavigate } from "react-router-dom";
 
-const comments = [
-  {
-    text: "I absolutely love the cozy ambiance of this cafe! The warm lighting, comfortable seating, and charming decor make it the perfect place to unwind. And the coffee? Simply divine! Every sip of their artisanal brews is a treat for the taste buds. Highly recommended!",
-    author: "Sarah Anderson",
-  },
-  {
-    text: "The desserts here are to die for! I had the chocolate cake and it was the best I've ever tasted. The staff is super friendly and the atmosphere is very relaxing. I will definitely come back for more.",
-    author: "Walter White",
-  },
-  {
-    text: "A perfect place for a weekend brunch. The menu has a great variety, and everything I've tried has been delicious. I especially love the cappuccinos here. It's a must-visit spot in town!",
-    author: "Emily Johnson",
-  },
-  {
-    text: "Bake & Brew never disappoints! The macadamia nut latte is my go-to drink, and the pastries are always fresh and delicious. The friendly service and cozy atmosphere make it my favorite spot to relax.",
-    author: "Ayesha Sharma",
-  },
-  {
-    text: "I can't get enough of Bake & Brew! The cold brew is smooth and strong, and the strawberry cake is out of this world. It's the perfect place to catch up with friends over great coffee and desserts.",
-    author: "Ravi Patel",
-  },
-];
+const Reservation = ({ setShowLogin }) => {
+	const [noOfPeople, setNoOfPeople] = useState("");
+	const [date, setDate] = useState("");
+	const [time, setTime] = useState("");
+	const { user } = useContext(UserContext); // Access the user context
+	const navigate = useNavigate();
 
-const Comment = () => {
-  const [currentComment, setCurrentComment] = useState(0);
-  const [fadeIn, setFadeIn] = useState(true);
+	// Check if the user exists in localStorage or sessionStorage
+	useEffect(() => {
+		// If no user and not logged in, redirect to login
+		if (!user && !localStorage.getItem("token")) {
+			setShowLogin(true);
+		}
+	}, [user, navigate]);
 
-  useEffect(() => {
-    const interval = setInterval(() => {
-      setFadeIn(false);
-      setTimeout(() => {
-        setCurrentComment((prevComment) => (prevComment + 1) % comments.length);
-        setFadeIn(true);
-      }, 1000); // Match the duration of the fade-out animation
-    }, 5000); // Total duration including both animations
-    return () => clearInterval(interval);
-  }, []);
+	const handleReservation = () => {
+		// Basic validation
+		if (!noOfPeople || !date || !time) {
+			toast.error("Please fill in all fields.");
+			return;
+		}
 
-  return (
-    <>
-      
-      <div className="w-full px-5 lg:px-[210px] py-20 border border-border flex flex-col lg:flex-row items-center justify-center gap-9">
-  <span className="uppercase text-text font-Bebas text-[40px] sm:text-[50px] lg:text-[60px] text-center lg:text-left tracking-wide">
-    Hear from Our Visitors
-  </span>
+		// Validate that the date is not in the past
+		const selectedDate = new Date(date);
+		const currentDate = new Date();
+		currentDate.setHours(0, 0, 0, 0); // Set current date to 00:00 to avoid time comparison issues
 
-  <img
-    className="w-[40px] sm:w-[50px] lg:w-[60px] h-[40px] sm:h-[50px] lg:h-[60px] -mt-5 p-2 rounded-full"
-    src={comma}
-    alt="comma"
-  />
+		if (selectedDate < currentDate) {
+			toast.error("Date cannot be in the past.");
+			return;
+		}
+		setDate("");
+		setNoOfPeople("");
+		setTime("");
 
-  <div className="flex flex-col gap-3 p-4 bg-[#f1f0ee] rounded-lg shadow-md max-w-full lg:max-w-[650px]">
-    <p
-      className={`font-Source text-sm sm:text-base text-text font-light italic transition-opacity duration-600 ease-in-out ${
-        fadeIn ? "animate-fadeIn" : "animate-fadeOut"
-      }`}
-    >
-      {comments[currentComment].text}
-    </p>
-    <span
-      className={`font-Source text-base sm:text-lg text-text font-semibold transition-opacity duration-600 ease-in-out ${
-        fadeIn ? "animate-fadeIn" : "animate-fadeOut"
-      }`}
-    >
-      — {comments[currentComment].author}
-    </span>
-  </div>
-</div>
+		toast.success("Table reserved!");
+	};
 
-    </>
-  );
+	return (
+		<div className="w-full flex lg:flex-row flex-col-reverse items-center lg:h-[480px] my-[50px] lg:my-[50px] my-8">
+			{/* Image Section */}
+			<div className="lg:w-[45%] w-full lg:h-full h-[250px] sm:h-[350px] lg:order-1 order-2">
+				<img
+					src={reservation}
+					alt="reservation"
+					className="w-full h-full object-cover rounded-lg lg:rounded-none"
+				/>
+			</div>
+
+			{/* Content Section */}
+			<div className="lg:w-[55%] w-full lg:h-full bg-backgrounds flex items-center justify-center flex-col lg:p-12 px-6 py-8 sm:px-8 lg:order-2 order-1">
+				<div className="flex flex-col w-full max-w-[500px]">
+					{/* Title */}
+					<span className="uppercase lg:text-[80px] md:text-[64px] sm:text-[56px] text-[40px] tracking-wide font-Bebas text-text leading-none mb-4 lg:mb-6 text-center lg:text-left">
+						reservation
+					</span>
+
+					{/* Description */}
+					<p className="font-Source sm:text-base text-sm font-light text-secondary max-w-[500px] mb-6 lg:mb-8 text-center lg:text-left leading-relaxed">
+						Reserve your spot at Bake & Brew to enjoy a delightful and memorable
+						experience. Whether it's a special occasion or just a cozy outing, book a
+						table today to ensure you don't miss out on our exceptional coffee and
+						delectable desserts.
+					</p>
+
+					{/* Form Inputs */}
+					<div className="flex flex-col gap-4 lg:gap-3 w-full">
+						<input
+							type="number"
+							placeholder="No of People"
+							value={noOfPeople}
+							onChange={(e) => setNoOfPeople(e.target.value)}
+							min="1" // Set minimum value to 1
+							className="border-0 border-b pb-2 sm:pb-3 border-inputBorder bg-transparent outline-none font-Source sm:text-base text-sm font-light placeholder:font-semibold text-secondary placeholder:text-secondary/70 focus:border-primary transition-colors duration-200 w-full"
+							aria-label="Number of people"
+						/>
+						<input
+							type="date"
+							value={date}
+							onChange={(e) => setDate(e.target.value)}
+							className="border-0 border-b pb-2 sm:pb-3 border-inputBorder bg-transparent outline-none font-Source sm:text-base text-sm font-light placeholder:font-semibold text-secondary focus:border-primary transition-colors duration-200 w-full"
+							aria-label="Reservation date"
+							min={new Date().toISOString().split("T")[0]} // Set min date to today
+						/>
+						<input
+							type="time"
+							value={time}
+							onChange={(e) => setTime(e.target.value)}
+							className="border-0 border-b pb-2 sm:pb-3 border-inputBorder bg-transparent outline-none font-Source sm:text-base text-sm font-light placeholder:font-semibold text-secondary focus:border-primary transition-colors duration-200 w-full"
+							aria-label="Reservation time"
+						/>
+					</div>
+
+					{/* Button */}
+					<div className="mt-8 lg:mt-10 w-full flex justify-center lg:justify-start">
+						<Button
+							onClick={handleReservation}
+							className="w-full sm:w-auto min-w-[200px] sm:min-w-[180px] text-center"
+						>
+							Find a Table
+						</Button>
+					</div>
+				</div>
+			</div>
+		</div>
+	);
 };
 
-export default Comment;
+export default Reservation;

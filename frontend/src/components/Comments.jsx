@@ -42,29 +42,35 @@ const Comment = () => {
   return (
     <>
       
-      <div className="w-full lg:px-[210px] border py-20 border-border px-5 flex items-center justify-center gap-9 ">
-        <span className="uppercase text-text font-Bebas text-[60px] tracking-wide">
-          Hear from Our Visitors
-        </span>
-        
-        <img className="w-[60px] h-[60px] -mt-[50px] p-2 rounded-full" src={comma} alt="comma" />
-        <div className="flex flex-col gap-3 p-4 bg-[#f1f0ee] rounded-lg shadow-md">
-          <p
-            className={`font-Source text-base text-text font-light italic max-w-[650px] transition-opacity duration-600 ease-in-out ${
-              fadeIn ? "animate-fadeIn" : "animate-fadeOut"
-            }`}
-          >
-            {comments[currentComment].text}
-          </p>
-          <span
-            className={`font-Source text-lg text-text font-semibold transition-opacity duration-600 ease-in-out ${
-              fadeIn ? "animate-fadeIn" : "animate-fadeOut"
-            }`}
-          >
-            {comments[currentComment].author}
-          </span>
-        </div>
-      </div>
+      <div className="w-full px-5 lg:px-[210px] py-20 border border-border flex flex-col lg:flex-row items-center justify-center gap-9">
+  <span className="uppercase text-text font-Bebas text-[40px] sm:text-[50px] lg:text-[60px] text-center lg:text-left tracking-wide">
+    Hear from Our Visitors
+  </span>
+
+  <img
+    className="w-[40px] sm:w-[50px] lg:w-[60px] h-[40px] sm:h-[50px] lg:h-[60px] -mt-5 p-2 rounded-full"
+    src={comma}
+    alt="comma"
+  />
+
+  <div className="flex flex-col gap-3 p-4 bg-[#f1f0ee] rounded-lg shadow-md max-w-full lg:max-w-[650px]">
+    <p
+      className={`font-Source text-sm sm:text-base text-text font-light italic transition-opacity duration-600 ease-in-out ${
+        fadeIn ? "animate-fadeIn" : "animate-fadeOut"
+      }`}
+    >
+      {comments[currentComment].text}
+    </p>
+    <span
+      className={`font-Source text-base sm:text-lg text-text font-semibold transition-opacity duration-600 ease-in-out ${
+        fadeIn ? "animate-fadeIn" : "animate-fadeOut"
+      }`}
+    >
+      — {comments[currentComment].author}
+    </span>
+  </div>
+</div>
+
     </>
   );
 };
