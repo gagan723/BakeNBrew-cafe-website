@@ -4,6 +4,7 @@ import Button from "./Button";
 import toast from "react-hot-toast";
 import { UserContext } from "../../context/UserContext";
 import { useNavigate } from "react-router-dom";
+import axiosInstance from "../utils/axiosInstance";
 
 const Reservation = ({ setShowLogin }) => {
 	const [noOfPeople, setNoOfPeople] = useState("");
@@ -12,15 +13,7 @@ const Reservation = ({ setShowLogin }) => {
 	const { user } = useContext(UserContext); // Access the user context
 	const navigate = useNavigate();
 
-	// Check if the user exists in localStorage or sessionStorage
-	useEffect(() => {
-		// If no user and not logged in, redirect to login
-		if (!user && !localStorage.getItem("token")) {
-			setShowLogin(true);
-		}
-	}, [user, navigate]);
-
-	const handleReservation = () => {
+	const handleReservation = async () => {
 		// Basic validation
 		if (!noOfPeople || !date || !time) {
 			toast.error("Please fill in all fields.");
@@ -40,7 +33,32 @@ const Reservation = ({ setShowLogin }) => {
 		setNoOfPeople("");
 		setTime("");
 
-		toast.success("Table reserved!");
+		// check for user login
+		if (!user && !localStorage.getItem("token")) {
+			toast.error("Please login to reserve a table");
+			setShowLogin(true);
+			return;
+		}
+
+		try {
+			const response = await axiosInstance.post("/reserve", {
+				noOfPeople,
+				date,
+				time,
+			});
+			if (response.data.error === false) {
+				setDate("");
+				setNoOfPeople("");
+				setTime("");
+				toast.success("Table reserved!");
+			} else {
+				console.error(error);
+				toast.error(data.message || "Something went wrong, please try again.");
+			}
+		} catch (error) {
+			console.error(error);
+			toast.error("Something went wrong, please try again.");
+		}
 	};
 
 	return (

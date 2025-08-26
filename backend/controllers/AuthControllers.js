@@ -259,6 +259,41 @@ const deleteFoodItem = async (req, res) => {
 	}
 };
 
+// Reservation
+const reserve = async (req, res) => {
+	try {
+		const { noOfPeople, date, time } = req.body;
+		if (!noOfPeople || !date || !time) {
+			return res.status(400).json({ error: true, message: "All fields are required" });
+		}
+		
+		const user = await User.findById(req.user.user._id);
+		if (!user) {
+			return res.status(404).json({ error: true, message: "No user found" });
+		}
+
+		const newReservation = {
+			noOfPeople,
+			date,
+			time,
+			createdAt: new Date(),
+		};
+
+		user.reservations.push(newReservation);
+		await user.save();
+
+		res.status(200).json({
+			error: false,
+			message: "Reservation added",
+			reservation: newReservation,
+		});
+	} catch (error) {
+		console.error(error);
+		return res.status(500).json({ error: true, message: "Internal Server error" });
+	}
+};
+
+
 module.exports = {
 	test,
 	registerUser,
@@ -269,4 +304,5 @@ module.exports = {
 	setCart,
 	addFoodItem,
 	deleteFoodItem,
+	reserve,
 };

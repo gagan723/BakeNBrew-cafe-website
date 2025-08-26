@@ -2,7 +2,7 @@ const express = require('express')
 const router = express.Router();
 const cors = require('cors')
 const upload = require("../utils/multerConfig")
-const {test, registerUser, loginUser, getUser, getItems, getCart, setCart,addFoodItem,deleteFoodItem} = require('../controllers/AuthControllers')
+const {test, registerUser, loginUser, getUser, getItems, getCart, setCart,addFoodItem,deleteFoodItem, reserve} = require('../controllers/AuthControllers')
 const { authenticateToken } = require("../utils/utilities");
 
 //middleware
@@ -24,6 +24,7 @@ router.get('/get-cart',authenticateToken,getCart)
 router.put('/update-cart',authenticateToken,setCart)
 router.post("/add-item", upload.single("image"), addFoodItem); // Image is uploaded as 'image'
 router.delete("/delete-item/:id",authenticateToken,deleteFoodItem)
+router.post("/reserve",authenticateToken,reserve)
 
 
 module.exports = router
