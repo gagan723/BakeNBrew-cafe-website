@@ -4,8 +4,8 @@ import axiosInstance from "../utils/axiosInstance";
 import { CartContext } from "../../context/CartContext";
 
 const starters = [
-  "What coffee do you recommend?",
-  "Show me available cakes",
+  "Add 2 Latte to my cart",
+  "Show me available Pastries",
   "Help me reserve a table",
   "What's in my cart?",
 ];
