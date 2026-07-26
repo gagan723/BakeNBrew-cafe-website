@@ -23,9 +23,9 @@ const ManageFoodAdmin = ({ setShowLogin }) => {
 
 	const fetchMenuItems = async () => {
 		try {
-			const response = await axiosInstance.get("/get-items");
-			if (response.data && !response.data.error) {
-				setMenuItems(response.data.items);
+			const response = await axiosInstance.get("/api/menu");
+			if (response.data) {
+				setMenuItems(response.data.items || []);
 			}
 		} catch (error) {
 			console.log("error fetching  menu items", error);
@@ -34,8 +34,8 @@ const ManageFoodAdmin = ({ setShowLogin }) => {
 
 	const handleDeleteItem = async (itemId) => {
 		try {
-			const response = await axiosInstance.delete(`/delete-item/${itemId}`);
-			if (response.data && !response.data.error) {
+			const response = await axiosInstance.delete(`/api/menu/${itemId}`);
+			if (response.data) {
 				toast.success("Item deleted successfully");
 				setMenuItems((prev) => prev.filter((item) => item._id !== itemId));
 			} else {
@@ -55,7 +55,7 @@ const ManageFoodAdmin = ({ setShowLogin }) => {
 		<div className="grid grid-cols-1 md:grid-cols-2 gap-5 lg:m-10 lg:mx-20">
 			{menuItems.map((item, index) => (
 				<MenuCard
-					key={index}
+					key={item._id}
 					imgSrc={item.image}
 					title={item.name}
 					description={item.description}

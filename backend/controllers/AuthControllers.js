@@ -249,8 +249,13 @@ const addFoodItem = async (req, res) => {
 const deleteFoodItem = async (req, res) => {
 	try {
 		const { id } = req.params;
-		await Food.findByIdAndDelete({ _id: id });
-		return res.json({ error: false, message: "Item deleted Successfully" });
+		const item = await Food.findByIdAndUpdate(
+			id,
+			{ isArchived: true, isAvailable: false },
+			{ new: true }
+		);
+		if (!item) return res.status(404).json({ error: true, message: "Item not found" });
+		return res.json({ error: false, message: "Item archived successfully" });
 	} catch (error) {
 		console.log(error);
 		return res

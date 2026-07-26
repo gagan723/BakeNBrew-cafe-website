@@ -13,8 +13,8 @@ export const CartProvider = ({ children }) => {
 	const fetchCart = async () => {
 		if (!user) return;
 		try {
-			const response = await axiosInstance.get("/get-cart");
-			setCartItems(response.data.cartData || []);
+			const response = await axiosInstance.get("/api/cart");
+			setCartItems(response.data.items || []);
 		} catch (error) {
 			console.error("Error fetching cart:", error);
 		}
@@ -26,17 +26,11 @@ export const CartProvider = ({ children }) => {
 
 	const addToCart = async (item) => {
 		try {
-			const existing = [...cartItems];
-			const index = existing.findIndex((i) => i.title === item.title);
-
-			if (index !== -1) {
-				existing[index].quantity += item.quantity;
-			} else {
-				existing.push(item);
-			}
-
-			await axiosInstance.put("/update-cart", { cartData: existing });
-			setCartItems(existing);
+			const response = await axiosInstance.post("/api/cart/items", {
+				foodId: item.foodId,
+				quantity: item.quantity,
+			});
+			setCartItems(response.data.items || []);
             toast.success("Item added to cart")
 		} catch (error) {
 			console.error("Error adding to cart", error);
@@ -44,28 +38,18 @@ export const CartProvider = ({ children }) => {
 		}
 	};
 
-	const removeFromCart = async (title) => {
+	const removeFromCart = async (foodId) => {
 		try {
-			const updated = cartItems.filter((item) => item.title !== title);
-			await axiosInstance.put("/update-cart", { cartData: updated });
-			setCartItems(updated);
+			const response = await axiosInstance.delete(`/api/cart/items/${foodId}`);
+			setCartItems(response.data.items || []);
 			toast.success("Item removed from cart")
 		} catch (error) {
 			console.error("Error removing from cart", error);
 		}
 	};
 
-	const clearCart = async () => {
-		try {
-			await axiosInstance.put("/update-cart", { cartData: [] });
-			setCartItems([]);
-		} catch (error) {
-			console.error("Error clearing cart", error);
-		}
-	};
-
 	return (
-		<CartContext.Provider value={{ cartItems, addToCart, removeFromCart, clearCart, fetchCart, setCartItems}}>
+		<CartContext.Provider value={{ cartItems, addToCart, removeFromCart, fetchCart, setCartItems}}>
 			{children}
 		</CartContext.Provider>
 	);

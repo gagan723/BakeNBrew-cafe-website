@@ -10,6 +10,8 @@ const Reservation = ({ setShowLogin }) => {
 	const [noOfPeople, setNoOfPeople] = useState("");
 	const [date, setDate] = useState("");
 	const [time, setTime] = useState("");
+	const [availableTables, setAvailableTables] = useState([]);
+	const [checkingAvailability, setCheckingAvailability] = useState(false);
 	const { user } = useContext(UserContext); // Access the user context
 	const navigate = useNavigate();
 
@@ -29,10 +31,6 @@ const Reservation = ({ setShowLogin }) => {
 			toast.error("Date cannot be in the past.");
 			return;
 		}
-		setDate("");
-		setNoOfPeople("");
-		setTime("");
-
 		// check for user login
 		if (!user && !localStorage.getItem("token")) {
 			toast.error("Please login to reserve a table");
@@ -41,23 +39,43 @@ const Reservation = ({ setShowLogin }) => {
 		}
 
 		try {
-			const response = await axiosInstance.post("/reserve", {
-				noOfPeople,
+			setCheckingAvailability(true);
+			const response = await axiosInstance.post("/api/reservations/availability", {
+				partySize: Number(noOfPeople),
 				date,
 				time,
 			});
-			if (response.data.error === false) {
-				setDate("");
-				setNoOfPeople("");
-				setTime("");
-				toast.success("Table reserved!");
+			if (response.data.available) {
+				setAvailableTables(response.data.tables);
+				toast.success(`${response.data.tables.length} table option${response.data.tables.length === 1 ? "" : "s"} found`);
 			} else {
-				console.error(error);
-				toast.error(data.message || "Something went wrong, please try again.");
+				toast.error("No table is available for that time.");
 			}
 		} catch (error) {
 			console.error(error);
-			toast.error("Something went wrong, please try again.");
+			toast.error(error.response?.data?.message || "Could not check availability.");
+		} finally {
+			setCheckingAvailability(false);
+		}
+	};
+
+	const confirmReservation = async (tableId) => {
+		try {
+			const response = await axiosInstance.post("/api/reservations", {
+				partySize: Number(noOfPeople), date, time, tableId,
+			});
+			if (response.data.reservation) {
+				setDate("");
+				setNoOfPeople("");
+				setTime("");
+				setAvailableTables([]);
+				toast.success("Table reserved!");
+			} else {
+				toast.error(response.data.message || "Something went wrong, please try again.");
+			}
+		} catch (error) {
+			console.error(error);
+			toast.error(error.response?.data?.message || "Something went wrong, please try again.");
 		}
 	};
 
@@ -122,9 +140,19 @@ const Reservation = ({ setShowLogin }) => {
 							onClick={handleReservation}
 							className="w-full sm:w-auto min-w-[200px] sm:min-w-[180px] text-center"
 						>
-							Find a Table
+							{checkingAvailability ? "CHECKING..." : "FIND A TABLE"}
 						</Button>
 					</div>
+					{availableTables.length > 0 && (
+						<div className="mt-4 space-y-2 font-Source text-secondary">
+							<p className="font-semibold">Available tables</p>
+							{availableTables.map((table) => (
+								<button key={table.id} onClick={() => confirmReservation(table.id)} className="w-full text-left border border-inputBorder p-3 hover:border-primary transition-colors">
+									Reserve {table.tableNumber} ({table.capacity} seats, {table.area})
+								</button>
+							))}
+						</div>
+					)}
 				</div>
 			</div>
 		</div>

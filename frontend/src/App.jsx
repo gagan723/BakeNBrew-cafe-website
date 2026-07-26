@@ -17,7 +17,7 @@ import AdminNavbar from "./components/AdminNavbar";
 import { CartProvider } from "../context/CartContext";
 
 // Set axios defaults
-axios.defaults.baseURL = "https://bakenbrew-cafe-website-backend.onrender.com";
+axios.defaults.baseURL = import.meta.env.VITE_API_URL || "https://bakenbrew-cafe-website-backend.onrender.com";
 axios.defaults.withCredentials = true;
 
 function App() {
