@@ -13,7 +13,7 @@ React ChatWidget -> Express /api/chat -> Groq intent + entity classification
                     Express workflow orchestrator
                               |
                               v
-                    MCP :8001/mcp -> cafe services -> MongoDB
+                             MCP  -> cafe services -> MongoDB
 ```
 
 Groq is called at most once per user message and never executes cafe operations. Express asks for missing details and creates result summaries. MCP is the exclusive boundary for cafe operations. Chat history remains in the browser; incomplete workflows use signed 15-minute browser-held tokens. Confirmation tokens are signed, user-bound, one-time, and expire after five minutes.
@@ -46,6 +46,29 @@ The MCP URL is `http://127.0.0.1:8001/mcp` and should remain internal. For MCP I
 Tools: `search_menu`, `get_cart`, `add_to_cart`, `add_items_to_cart`, `remove_from_cart`, `check_reservation_availability`, `create_reservation`, `list_my_reservations`, `create_order_from_cart`, plus the three admin menu tools. The read-only `cafe://info` resource provides cafe hours, timezone, and reservation duration. Admin tools are not exposed to normal users.
 
 Demo prompts: “Show available cold coffees”, “Add two cappuccinos”, “Find a table tomorrow at 7 PM for four”, “What’s in my cart?”, and “Place my order.”
+
+### Run the complete application with Docker
+
+Install Docker Desktop or Docker Engine with Compose v2, then copy `.env.docker.example` to `.env.docker` and fill in its three required secrets.
+
+```bash
+docker compose --env-file .env.docker up --build
+```
+
+Services:
+
+- Frontend: `http://localhost:5173`
+- Backend: `http://localhost:8000` (`/health`)
+- MCP: `http://127.0.0.1:8001/mcp` (`/health`)
+- MongoDB: `mongodb://127.0.0.1:27017/bakenbrew`
+
+MongoDB data persists in the `mongo_data` volume. To use Atlas, set `MONGO_URL` in `.env.docker`; Express and MCP receive the same URI. MCP is exposed only to localhost and the private Compose network.
+
+```bash
+npm run docker:logs
+npm run docker:down
+docker compose --env-file .env.docker down -v # also removes local MongoDB data
+```
 
 ---
 ## Deployed link

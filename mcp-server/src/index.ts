@@ -24,7 +24,14 @@ async function stdio() {
 async function http() {
   await connectDatabase();
   const port = Number(process.env.MCP_PORT || 8001);
+  const host = process.env.MCP_HOST || "127.0.0.1";
   const app = createServer(async (req, res) => {
+    if (req.url === "/health") {
+      const connected = backendMongoose.connection.readyState === 1;
+      res.writeHead(connected ? 200 : 503, { "content-type": "application/json" });
+      res.end(JSON.stringify({ status: connected ? "ok" : "degraded", database: connected ? "connected" : "disconnected" }));
+      return;
+    }
     if (req.url !== "/mcp") {
       res.writeHead(404).end("Not found");
       return;
@@ -48,7 +55,16 @@ async function http() {
       }
     }
   });
-  app.listen(port, "127.0.0.1", () => console.error(`Bake N Brew MCP listening at http://127.0.0.1:${port}/mcp`));
+  app.listen(port, host, () => console.error(`Bake N Brew MCP listening at http://${host}:${port}/mcp`));
+  const shutdown = async (signal: string) => {
+    console.error(`${signal} received, shutting down`);
+    app.close(async () => {
+      await backendMongoose.disconnect();
+      process.exit(0);
+    });
+  };
+  process.on("SIGTERM", () => shutdown("SIGTERM"));
+  process.on("SIGINT", () => shutdown("SIGINT"));
 }
 
 (process.argv[2] === "stdio" ? stdio() : http()).catch((error) => {

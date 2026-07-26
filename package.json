@@ -8,6 +8,9 @@
     "mcp:stdio": "npm --prefix mcp-server run start:stdio",
     "mcp:inspect": "npm --prefix mcp-server run inspect",
     "build": "npm --prefix frontend run build",
-    "test": "npm --prefix backend test"
+    "test": "npm --prefix backend test",
+    "docker:up": "docker compose --env-file .env.docker up --build",
+    "docker:down": "docker compose --env-file .env.docker down",
+    "docker:logs": "docker compose --env-file .env.docker logs -f"
   }
 }

@@ -27,6 +27,14 @@ app.use("/uploads", express.static("uploads"));
 
 app.use(express.urlencoded({ extended: false }));
 
+app.get("/health", (req, res) => {
+  const connected = mongoose.connection.readyState === 1;
+  res.status(connected ? 200 : 503).json({
+    status: connected ? "ok" : "degraded",
+    database: connected ? "connected" : "disconnected",
+  });
+});
+
 // Routes
 app.use("/", require("./routes/AuthRoutes.js"));
 app.use("/api/menu", require("./routes/menuRoutes"));
@@ -42,4 +50,15 @@ app.use((err, req, res, next) => {
 
 // Start Server
 const port = process.env.PORT || 8000;
-app.listen(port, () => console.log(`Server is running on port ${port}`));
+const server = app.listen(port, "0.0.0.0", () => console.log(`Server is running on port ${port}`));
+
+async function shutdown(signal) {
+  console.log(`${signal} received, shutting down`);
+  server.close(async () => {
+    await mongoose.disconnect();
+    process.exit(0);
+  });
+}
+
+process.on("SIGTERM", () => shutdown("SIGTERM"));
+process.on("SIGINT", () => shutdown("SIGINT"));
