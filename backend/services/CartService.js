@@ -30,6 +30,29 @@ async function addItem(userId, foodId, quantity) {
   return getCart(userId);
 }
 
+async function addItems(userId, requestedItems) {
+  if (!Array.isArray(requestedItems) || !requestedItems.length) throw new Error("At least one cart item is required");
+  const foodIds = requestedItems.map((item) => item.foodId);
+  const foods = await Food.find({
+    _id: { $in: foodIds },
+    isArchived: { $ne: true },
+    isAvailable: { $ne: false },
+  });
+  const foodById = new Map(foods.map((food) => [String(food._id), food]));
+  if (foodById.size !== new Set(foodIds.map(String)).size) throw new Error("One or more menu items are unavailable");
+
+  const cart = (await Cart.findOne({ userId })) || new Cart({ userId, items: [] });
+  for (const requested of requestedItems) {
+    const quantity = Number(requested.quantity);
+    if (!Number.isInteger(quantity) || quantity < 1 || quantity > 20) throw new Error("Each quantity must be between 1 and 20");
+    const item = cart.items.find((cartItem) => String(cartItem.foodId) === String(requested.foodId));
+    if (item) item.quantity = Math.min(item.quantity + quantity, 20);
+    else cart.items.push({ foodId: requested.foodId, quantity });
+  }
+  await cart.save();
+  return getCart(userId);
+}
+
 async function updateItem(userId, foodId, quantity) {
   const cart = await Cart.findOne({ userId });
   if (!cart) throw new Error("Cart not found");
@@ -52,4 +75,4 @@ async function clearCart(userId) {
   await Cart.findOneAndUpdate({ userId }, { $set: { items: [] } });
 }
 
-module.exports = { getCart, addItem, updateItem, removeItem, clearCart };
+module.exports = { getCart, addItem, addItems, updateItem, removeItem, clearCart };

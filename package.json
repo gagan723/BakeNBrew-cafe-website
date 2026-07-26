@@ -1,0 +1,13 @@
+{
+  "name": "bakenbrew-cafe",
+  "private": true,
+  "scripts": {
+    "backend": "npm --prefix backend start",
+    "frontend": "npm --prefix frontend run dev",
+    "mcp:http": "npm --prefix mcp-server run start:http",
+    "mcp:stdio": "npm --prefix mcp-server run start:stdio",
+    "mcp:inspect": "npm --prefix mcp-server run inspect",
+    "build": "npm --prefix frontend run build",
+    "test": "npm --prefix backend test"
+  }
+}

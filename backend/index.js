@@ -1,5 +1,6 @@
 const express = require("express");
-const dotenv = require("dotenv").config();
+const path = require("path");
+require("dotenv").config({ path: path.join(__dirname, ".env") });
 const cors = require("cors");
 const { mongoose } = require("mongoose");
 
@@ -32,10 +33,11 @@ app.use("/api/menu", require("./routes/menuRoutes"));
 app.use("/api/cart", require("./routes/cartRoutes"));
 app.use("/api/reservations", require("./routes/reservationRoutes"));
 app.use("/api/orders", require("./routes/orderRoutes"));
+app.use("/api/chat", require("./routes/chatRoutes"));
 
 app.use((err, req, res, next) => {
   console.error(err);
-  res.status(400).json({ message: err.message || "Request could not be completed" });
+  res.status(err.status || 400).json({ message: err.message || "Request could not be completed" });
 });
 
 // Start Server

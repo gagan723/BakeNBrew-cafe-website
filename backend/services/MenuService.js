@@ -1,10 +1,16 @@
 const Food = require("../models/FoodModel");
 
+function escapeRegex(value) {
+  return String(value).replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+}
+
 async function searchMenu({ query, category, availableOnly = false } = {}) {
   const filter = { isArchived: { $ne: true } };
-  if (category) filter.category = category;
-  if (availableOnly) filter.isAvailable = true;
-  if (query?.trim()) filter.name = { $regex: query.trim(), $options: "i" };
+  if (category?.trim()) filter.category = { $regex: `^${escapeRegex(category.trim())}$`, $options: "i" };
+  // Legacy menu documents predate this field. Missing means available, matching
+  // the schema default and the behavior of the existing website menu.
+  if (availableOnly) filter.isAvailable = { $ne: false };
+  if (query?.trim()) filter.name = { $regex: escapeRegex(query.trim()), $options: "i" };
   return Food.find(filter).sort({ name: 1 });
 }
 
@@ -33,4 +39,4 @@ async function archiveMenuItem(id) {
   return item;
 }
 
-module.exports = { searchMenu, createMenuItem, setMenuItemAvailability, archiveMenuItem };
+module.exports = { searchMenu, createMenuItem, setMenuItemAvailability, archiveMenuItem, escapeRegex };

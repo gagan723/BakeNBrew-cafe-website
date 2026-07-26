@@ -1,6 +1,7 @@
 import React, { useContext, useEffect, useState } from 'react';
 import { Link, NavLink, useNavigate } from 'react-router-dom';
 import { CiShoppingBasket } from 'react-icons/ci';
+import { FiUser } from 'react-icons/fi';
 import { UserContext } from '../../context/UserContext';
 import { useCart } from '../../context/CartContext';
 import toast from 'react-hot-toast';
@@ -83,7 +84,7 @@ const Navbar = ({ setShowLogin }) => {
                   `${isActive ? 'text-primary' : 'text-secondary'} font-Source text-lg hover:text-primary cursor-pointer`
                 }
               >
-                Order
+                Menu
               </NavLink>
             </li>
             <li className="font-Source text-base text-secondary">|</li>
@@ -96,6 +97,16 @@ const Navbar = ({ setShowLogin }) => {
               {cartItems.length}
             </span>
           </Link>
+          {user && (
+            <NavLink
+              to="/profile"
+              aria-label="Open profile"
+              title="My Profile"
+              className="grid h-10 w-10 place-items-center rounded-full bg-primary text-white shadow-sm transition hover:scale-105 hover:bg-[#d97435]"
+            >
+              <FiUser className="text-xl" />
+            </NavLink>
+          )}
 
           {/* Login/Logout */}
           {user ? (
@@ -118,6 +129,15 @@ const Navbar = ({ setShowLogin }) => {
               {cartItems.length}
             </span>
           </Link>
+          {user && (
+            <NavLink
+              to="/profile"
+              aria-label="Open profile"
+              className="grid h-9 w-9 place-items-center rounded-full bg-primary text-white shadow-sm transition hover:bg-[#d97435]"
+            >
+              <FiUser className="text-lg" />
+            </NavLink>
+          )}
 
           {/* Hamburger Menu Button */}
           <button
@@ -198,6 +218,17 @@ const Navbar = ({ setShowLogin }) => {
               >
                 Order
               </NavLink>
+              {user && (
+                <NavLink
+                  to="/profile"
+                  onClick={closeMobileMenu}
+                  className={({ isActive }) =>
+                    `${isActive ? 'text-primary' : 'text-secondary'} flex items-center gap-3 font-Source text-xl hover:text-primary cursor-pointer py-2 border-b border-gray-100`
+                  }
+                >
+                  <FiUser /> My Profile
+                </NavLink>
+              )}
 
               {/* Mobile Login/Logout */}
               <div className="pt-4">

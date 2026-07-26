@@ -1,4 +1,4 @@
-const { createOrderFromCart } = require("../services/OrderService");
+const { createOrderFromCart, listMyOrders } = require("../services/OrderService");
 
 async function createOrder(req, res, next) {
   try {
@@ -7,4 +7,11 @@ async function createOrder(req, res, next) {
   } catch (error) { next(error); }
 }
 
-module.exports = { createOrder };
+async function listOrders(req, res, next) {
+  try {
+    const orders = await listMyOrders(req.auth.userId);
+    res.json({ orders });
+  } catch (error) { next(error); }
+}
+
+module.exports = { createOrder, listOrders };

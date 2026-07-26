@@ -20,8 +20,7 @@ async function createReservation(req, res, next) {
 
 async function listMyReservations(req, res, next) {
   try {
-    const Reservation = require("../models/ReservationModel");
-    const reservations = await Reservation.find({ userId: req.auth.userId, status: "confirmed" }).populate("tableId", "tableNumber capacity area").sort({ startAt: 1 });
+    const reservations = await ReservationService.listMyReservations(req.auth.userId);
     res.json({ reservations });
   } catch (error) { next(error); }
 }

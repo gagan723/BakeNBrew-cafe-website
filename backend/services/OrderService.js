@@ -18,4 +18,8 @@ async function createOrderFromCart(userId) {
   return order;
 }
 
-module.exports = { createOrderFromCart };
+async function listMyOrders(userId) {
+  return Order.find({ userId }).sort({ createdAt: -1 }).limit(50);
+}
+
+module.exports = { createOrderFromCart, listMyOrders };

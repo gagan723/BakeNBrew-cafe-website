@@ -51,4 +51,10 @@ async function createReservation({ userId, partySize, date, time, tableId }) {
   return Reservation.create({ userId, tableId: table._id, partySize, startAt, endAt });
 }
 
-module.exports = { checkAvailability, createReservation };
+async function listMyReservations(userId) {
+  return Reservation.find({ userId, status: "confirmed" })
+    .populate("tableId", "tableNumber capacity area")
+    .sort({ startAt: 1 });
+}
+
+module.exports = { checkAvailability, createReservation, listMyReservations };

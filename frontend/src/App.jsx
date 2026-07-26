@@ -1,5 +1,5 @@
 import React, { useState, useContext } from "react";
-import { BrowserRouter as Router, Route, Routes } from "react-router-dom";
+import { BrowserRouter as Router, Navigate, Route, Routes } from "react-router-dom";
 import Navbar from "./components/Navbar";
 import Reservation from "./components/Reservation";
 import Footer from "./components/Footer";
@@ -15,6 +15,8 @@ import AdminAddItem from "./pages/AdminAddItem";
 import ManageFoodAdmin from "./pages/ManageFoodAdmin"; // Admin Delete Item Page
 import AdminNavbar from "./components/AdminNavbar";
 import { CartProvider } from "../context/CartContext";
+import ChatWidget from "./components/ChatWidget";
+import Profile from "./pages/Profile";
 
 // Set axios defaults
 axios.defaults.baseURL = import.meta.env.VITE_API_URL || "https://bakenbrew-cafe-website-backend.onrender.com";
@@ -74,6 +76,8 @@ function AppContent({ showLogin, setShowLogin, showSignUp, setShowSignUp }) {
 				/>
 				<Route path="/order" element={<Order setShowLogin={setShowLogin}/>} />
 				<Route path="/cart" element={<Cart setShowLogin={setShowLogin}/>} />
+				<Route path="/profile" element={<Profile setShowLogin={setShowLogin} />} />
+				<Route path="/my-activity" element={<Navigate to="/profile" replace />} />
 
 				{/* Admin routes */}
 				<Route
@@ -99,6 +103,7 @@ function AppContent({ showLogin, setShowLogin, showSignUp, setShowSignUp }) {
 
 			{/* Hide Footer if user is admin */}
 			{!isAdmin && <Footer />}
+			<ChatWidget onLogin={() => setShowLogin(true)} />
 
 			{/* Popups for Login & Signup */}
 			{showLogin && (
