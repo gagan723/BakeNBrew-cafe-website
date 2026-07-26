@@ -18,9 +18,9 @@ const Order = ({ setShowLogin }) => {
 
   const fetchMenuItems = async (category) => {
     try {
-      const response = await axiosInstance.get(`/get-items?category=${category}`);
-      if (response.data && !response.data.error) {
-        setMenuItems(response.data.items);
+      const response = await axiosInstance.get(`/api/menu?category=${encodeURIComponent(category)}`);
+      if (response.data) {
+        setMenuItems(response.data.items || []);
       }
     } catch (error) {
       console.log("Error fetching menu items:", error);
@@ -72,7 +72,8 @@ const Order = ({ setShowLogin }) => {
         {menuItems.length > 0 ? (
           menuItems.map((item, index) => (
             <MenuCard
-              key={index}
+              key={item._id}
+              foodId={item._id}
               imgSrc={item.image}
               title={item.name}
               description={item.description}

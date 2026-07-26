@@ -55,7 +55,7 @@ const AdminAddItem = ({setShowLogin}) => {
 
 		try {
 			const response = await axiosInstance.post(
-				"/add-item",
+				"/api/menu",
 				formDataToSend,
 				{
 					headers: { "Content-Type": "multipart/form-data" },

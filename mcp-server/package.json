@@ -1,0 +1,25 @@
+{
+  "name": "brewbake-mcp-server",
+  "private": true,
+  "version": "1.0.0",
+  "type": "module",
+  "scripts": {
+    "start:http": "tsx src/index.ts http",
+    "start:stdio": "tsx src/index.ts stdio",
+    "inspect": "npx @modelcontextprotocol/inspector tsx src/index.ts stdio"
+  },
+  "dependencies": {
+    "@modelcontextprotocol/node": "2.0.0-beta.5",
+    "@modelcontextprotocol/server": "2.0.0-beta.5",
+    "dotenv": "^16.4.7",
+    "jsonwebtoken": "^9.0.2",
+    "mongoose": "^8.8.3",
+    "tsx": "^4.20.0",
+    "zod": "^4.0.0"
+  },
+  "devDependencies": {
+    "@types/jsonwebtoken": "^9.0.10",
+    "@types/node": "^26.1.1",
+    "typescript": "^7.0.2"
+  }
+}

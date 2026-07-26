@@ -171,49 +171,6 @@ const getItems = async (req, res) => {
 	}
 };
 
-// Get user's cartdata
-const getCart = async (req, res) => {
-	try {
-		const { user } = req.user; // Get user from request
-		const foundUser = await User.findById(user._id);
-
-		if (!foundUser) {
-			return res.status(404).json({ error: "User not found" });
-		}
-
-		res.status(200).json({ cartData: foundUser.cartData || [] });
-	} catch (error) {
-		console.error("Error fetching cart data:", error);
-		res.status(500).json({ error: "Internal Server Error" });
-	}
-};
-
-// Update user's cartdata
-const setCart = async (req, res) => {
-	try {
-		const { cartData } = req.body; // Extract new cart data
-		const { user } = req.user; // Get user from request
-
-		const updatedUser = await User.findOneAndUpdate(
-			{ _id: user._id },
-			{ $set: { cartData } }, // Overwrites cartData
-			{ new: true, runValidators: true }
-		);
-
-		if (!updatedUser) {
-			return res.status(404).json({ error: "User not found" });
-		}
-
-		res.status(200).json({
-			message: "Cart updated successfully",
-			cartData: updatedUser.cartData,
-		});
-	} catch (error) {
-		console.error("Error updating cart data:", error);
-		res.status(500).json({ error: "Internal Server Error" });
-	}
-};
-
 // Add food item
 const addFoodItem = async (req, res) => {
 	try {
@@ -249,8 +206,13 @@ const addFoodItem = async (req, res) => {
 const deleteFoodItem = async (req, res) => {
 	try {
 		const { id } = req.params;
-		await Food.findByIdAndDelete({ _id: id });
-		return res.json({ error: false, message: "Item deleted Successfully" });
+		const item = await Food.findByIdAndUpdate(
+			id,
+			{ isArchived: true, isAvailable: false },
+			{ new: true }
+		);
+		if (!item) return res.status(404).json({ error: true, message: "Item not found" });
+		return res.json({ error: false, message: "Item archived successfully" });
 	} catch (error) {
 		console.log(error);
 		return res
@@ -259,50 +221,12 @@ const deleteFoodItem = async (req, res) => {
 	}
 };
 
-// Reservation
-const reserve = async (req, res) => {
-	try {
-		const { noOfPeople, date, time } = req.body;
-		if (!noOfPeople || !date || !time) {
-			return res.status(400).json({ error: true, message: "All fields are required" });
-		}
-		
-		const user = await User.findById(req.user.user._id);
-		if (!user) {
-			return res.status(404).json({ error: true, message: "No user found" });
-		}
-
-		const newReservation = {
-			noOfPeople,
-			date,
-			time,
-			createdAt: new Date(),
-		};
-
-		user.reservations.push(newReservation);
-		await user.save();
-
-		res.status(200).json({
-			error: false,
-			message: "Reservation added",
-			reservation: newReservation,
-		});
-	} catch (error) {
-		console.error(error);
-		return res.status(500).json({ error: true, message: "Internal Server error" });
-	}
-};
-
-
 module.exports = {
 	test,
 	registerUser,
 	loginUser,
 	getUser,
 	getItems,
-	getCart,
-	setCart,
 	addFoodItem,
 	deleteFoodItem,
-	reserve,
 };
